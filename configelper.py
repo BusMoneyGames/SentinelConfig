@@ -34,10 +34,20 @@ def reset_ue_repo():
 
     repo = git.Repo(str(project_root.parent))
     clean_result = repo.git.execute(["git", "clean", "-dfx"])
-    reset_Result = repo.git.execute(["git", "reset", "--hard"])
+    L.debug(clean_result)
+
+    reset_result = repo.git.execute(["git", "reset", "--hard"])
+    L.debug(reset_result)
 
 
 def read_config(config_dir):
+    """
+    Reads the config file and
+    :param config_dir:
+    :return:
+    """
+
+    L.debug("Reading Config from: %s", config_dir)
     config_dir = pathlib.Path(config_dir).resolve()
 
     if not config_dir.exists():
@@ -57,7 +67,6 @@ def read_config(config_dir):
 
         if "type_" in each_file.name:
             asset_types.append(json_data)
-
         else:
             run_config.update(json_data)
 
@@ -67,11 +76,15 @@ def read_config(config_dir):
     relative_project_path = pathlib.Path(env_category[CONSTANTS.UNREAL_PROJECT_ROOT])
     project_root = config_dir.joinpath(relative_project_path).resolve()
 
+    L.info("Project Root: " + str(project_root))
+
     # Resolves all relative paths in the project structure to absolute paths
     for each_value in env_category.keys():
         if not each_value == CONSTANTS.UNREAL_PROJECT_ROOT:
             each_relative_path = env_category[each_value]
-            env_category[each_value] = project_root.joinpath(each_relative_path).resolve()
+            abs_path = project_root.joinpath(each_relative_path).resolve()
+            L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
+            env_category[each_value] = abs_path
 
     env_category[CONSTANTS.UNREAL_PROJECT_ROOT] = str(project_root)
     run_config[CONSTANTS.ENVIRONMENT_CATEGORY] = env_category
@@ -82,7 +95,7 @@ def read_config(config_dir):
 def get_path_config_for_test():
 
     # Test config file
-    current_dir = pathlib.Path(pathlib.Path(__file__).parent)
+    current_dir = pathlib.Path(pathlib.Path(__file__))
     path = current_dir.joinpath("../defaultConfig").resolve()
 
     config = read_config(path)

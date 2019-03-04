@@ -22,13 +22,12 @@ def verify_environment(run_config):
     print('\n')
 
 
-def reset_ue_repo():
+def reset_ue_repo(run_config):
     """
     cleans the git repo so that it is clean to run
     :return:
     """
 
-    run_config = get_path_config_for_test()
     environment = run_config[CONSTANTS.ENVIRONMENT_CATEGORY]
     project_root = pathlib.Path(environment[CONSTANTS.UNREAL_PROJECT_ROOT])
 
@@ -40,13 +39,14 @@ def reset_ue_repo():
     L.debug(reset_result)
 
 
-def read_config(config_dir):
+def assemble_config(config_dir):
     """
     Reads the config file and
     :param config_dir:
     :return:
     """
 
+    L.debug(config_dir)
     L.debug("Reading Config from: %s", config_dir)
     config_dir = pathlib.Path(config_dir).resolve()
 
@@ -60,6 +60,11 @@ def read_config(config_dir):
 
     asset_types = []
     for each_file in config_dir.glob("**/*.json"):
+        L.debug("Reading %s", each_file)
+
+        # Skipping generated files
+        if each_file.name.startswith("_"):
+            continue
 
         f = open(str(each_file))
         json_data = json.load(f)
@@ -83,8 +88,9 @@ def read_config(config_dir):
         if not each_value == CONSTANTS.UNREAL_PROJECT_ROOT:
             each_relative_path = env_category[each_value]
             abs_path = project_root.joinpath(each_relative_path).resolve()
+
             L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
-            env_category[each_value] = abs_path
+            env_category[each_value] = str(abs_path)
 
     env_category[CONSTANTS.UNREAL_PROJECT_ROOT] = str(project_root)
     run_config[CONSTANTS.ENVIRONMENT_CATEGORY] = env_category
@@ -92,12 +98,19 @@ def read_config(config_dir):
     return run_config
 
 
-def get_path_config_for_test():
+def generate_default_config():
 
     # Test config file
-    current_dir = pathlib.Path(pathlib.Path(__file__))
-    path = current_dir.joinpath("../defaultConfig").resolve()
+    current_dir = pathlib.Path(pathlib.Path(__file__)).parent
+    output_path = current_dir.joinpath("..").resolve()
+    path = current_dir.joinpath("defaultConfig").resolve()
+    L.info("Generating default config at: %s", output_path)
 
-    config = read_config(path)
+    gen_config_file = output_path.joinpath("_sentinelConfig.json")
 
-    return config
+    config = assemble_config(path)
+    f = open(gen_config_file, "w")
+    f.write(json.dumps(config))
+    f.close()
+
+    return gen_config_file

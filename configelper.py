@@ -145,4 +145,4 @@ def generate_default_config():
     f.write(json.dumps(config))
     f.close()
 
-    return gen_config_file
+    return output_path

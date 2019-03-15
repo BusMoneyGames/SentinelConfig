@@ -1,5 +1,9 @@
 {   "unreal_build_structure":{
-      "default":{
+      "default": {
+        "run_scripts": {
+        "start": "run server",
+        "start_all": "run all"
+      },
          "should_compile":true,
          "editor_compile_flags":[
             "TargetType=Editor",

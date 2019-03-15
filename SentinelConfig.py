@@ -1,6 +1,10 @@
 import argparse
-import configelper
 import logging
+
+if __package__ is None or __package__ == '':
+    import configelper
+else:
+    from . import configelper
 
 L = logging.getLogger()
 

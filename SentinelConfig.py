@@ -11,7 +11,6 @@ L = logging.getLogger()
 
 def main(raw_args=None):
 
-    print(raw_args)
     parser = argparse.ArgumentParser(description='Runs sentinel tasks for Unreal Engine.',
                                      add_help=True,
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -20,7 +19,6 @@ def main(raw_args=None):
     parser.add_argument("-path", default="", help="Absolute or relative path to the config directory if other than default")
 
     args = parser.parse_args(raw_args)
-    print(raw_args)
 
     if args.generate and not args.path:
         L.info("Generating default config")

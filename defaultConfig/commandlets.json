@@ -42,6 +42,12 @@
             "projectonly"
          ]
       },
+      "Refresh-DDC-Cache":{
+         "command":"DerivedDataCache ",
+         "flags":[
+            "fill"
+         ]
+      },
       "Compile-Blueprints":{  
          "command":"CompileAllBlueprints",
          "flags":[  

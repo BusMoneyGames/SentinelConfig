@@ -1,8 +1,7 @@
 {   "unreal_build_structure":{
       "default": {
         "run_scripts": {
-        "start": "%~dp0WindowsNoEditor/sentinelUE4.exe -windowed",
-        "start_all": "%~dp0WindowsNoEditor/sentinelUE4.exe -norhi"
+        "run_sentinel_test": "%~dp0WindowsNoEditor/sentinelUE4.exe -sentinelTest_Default -windowed"
       },
          "should_compile":true,
          "editor_compile_flags":[

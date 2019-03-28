@@ -1,6 +1,9 @@
 import argparse
 import logging
 import pathlib
+import click
+import json
+
 if __package__ is None or __package__ == '':
     import configelper
 else:
@@ -8,48 +11,47 @@ else:
 
 L = logging.getLogger()
 
-
-def main(raw_args=None):
-
-    parser = argparse.ArgumentParser(description='Runs sentinel tasks for Unreal Engine.',
-                                     add_help=True,
-                                     formatter_class=argparse.RawTextHelpFormatter)
-
-    global_settings = parser.add_argument_group('Global Settings')
-    global_settings.add_argument("-config", default="", help="Absolute or relative path to"
-                                                             " the config directory if other than default")
-    global_settings.add_argument("-debug", action='store_true', help="Enables detailed logging")
-
-    parser.add_argument("-generate", action='store_true')
-    parser.add_argument("-path", default="", help="Absolute or relative path to the config directory if other than default")
-
-    args = parser.parse_args(raw_args)
-
-    if args.debug:
-        print("Running in debug mode!")
-        FORMAT = '%(levelname)s - %(funcName)s - %(message)s'
-        logging.basicConfig(format=FORMAT)
+@click.group()
+@click.option('--path', default="", help="path to the config overwrite folder")
+@click.option('--debug', default=False, help="Turns on debug messages")
+@click.pass_context
+def cli(ctx, path, debug):
+    """Sentinel Unreal Component handles running commands interacting with unreal engine"""
+    ctx.ensure_object(dict)
+    ctx.obj['CONFIG_OVERWRITE'] = path
+    if debug:
         L.setLevel(logging.DEBUG)
+        L.debug("Running with debug messages")
     else:
-        FORMAT = '%(levelname)s - %(message)s'
-        logging.basicConfig(format=FORMAT)
-        L.setLevel(logging.DEBUG)
+        L.setLevel(logging.ERROR)
 
-    if args.generate and not args.path:
-        L.info("Generating default config")
+@cli.command()
+@click.option('-o','--output', type=click.Choice(['text', 'json']), default='text', help="Output type.")
+@click.pass_context
+def generate(ctx, output):
+    """Generates a config file """
+
+    config_path = ctx.obj['CONFIG_OVERWRITE']
+    L.debug("Config Path: %s", config_path)
+    
+    if not config_path:
+        L.debug("Generating default config")
         configelper.generate_default_config()
 
     else:
-
-        path = pathlib.Path(args.path).resolve()
+        path = pathlib.Path(config_path).resolve()
 
         if not path.exists():
             L.error("No config overwrite found at: %s", path.absolute())
             quit(1)
 
-        L.info("Reading config overwrite from: %s ", args.path)
-        configelper.assemble_config(args.path)
+            configelper.assemble_config(path)
 
+    #TODO output
+    if output == 'text':
+        print("Generated config...")
+    elif output == 'json':
+        print(json.dumps({"message":"Generated Config"}, indent=4))
 
 if __name__ == "__main__":
-    main()
+    cli()

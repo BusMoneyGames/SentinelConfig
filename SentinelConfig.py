@@ -3,15 +3,9 @@ import pathlib
 import click
 import json
 import os
-
-if __package__ is None or __package__ == '':
-    import configelper
-else:
-    from . import configelper
-
+import configelper
+import config_constants
 L = logging.getLogger()
-
-CONFIG_SETTINGS_FILE_NAME = "_sentinel_root.json"
 
 
 def _load_environment_config(overwrite_path=""):
@@ -27,7 +21,8 @@ def _load_environment_config(overwrite_path=""):
         overwrite_path = ".."
         L.debug("Using the default relative path that resolves to:  %s", overwrite_path)
 
-    config_file_path = current_run_directory.joinpath(overwrite_path, CONFIG_SETTINGS_FILE_NAME).resolve()
+    config_file_name = config_constants.CONFIG_SETTINGS_FILE_NAME
+    config_file_path = current_run_directory.joinpath(overwrite_path, config_file_name).resolve()
     L.debug("Searching for environment file at: %s", config_file_path)
     L.debug("environment file exists: %s ", config_file_path.exists())
 

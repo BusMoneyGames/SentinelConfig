@@ -1,5 +1,5 @@
 import pathlib
-import CONSTANTS
+import config_constants
 import json
 import logging
 import os
@@ -9,7 +9,7 @@ L = logging.getLogger()
 
 def verify_environment(run_config):
 
-    env_config = run_config[CONSTANTS.ENVIRONMENT_CATEGORY]
+    env_config = run_config[config_constants.ENVIRONMENT_CATEGORY]
     print('\n')
     print("%-75s %-25s %4s" % ("Path", "Value", "Exists"))
 
@@ -20,23 +20,6 @@ def verify_environment(run_config):
         print("%-75s %-25s %4s" % (path, each_env_config, str(exists)))
 
     print('\n')
-
-
-def reset_ue_repo(run_config):
-    """
-    cleans the git repo so that it is clean to run
-    :return:
-    """
-
-    environment = run_config[CONSTANTS.ENVIRONMENT_CATEGORY]
-    project_root = pathlib.Path(environment[CONSTANTS.UNREAL_PROJECT_ROOT])
-
-    repo = git.Repo(str(project_root.parent))
-    clean_result = repo.git.execute(["git", "clean", "-dfx"])
-    L.debug(clean_result)
-
-    reset_result = repo.git.execute(["git", "reset", "--hard"])
-    L.debug(reset_result)
 
 
 def assemble_config(sentinel_environment_config):
@@ -87,23 +70,13 @@ def assemble_config(sentinel_environment_config):
         L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
         environment_config_data[each_value] = str(abs_path)
 
-    run_config[CONSTANTS.ENVIRONMENT_CATEGORY] = environment_config_data
-
-    _write_assembled_config(current_run_directory, run_config)
+    run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
 
     return run_config
 
 
-def _write_assembled_config(root_folder, assembled_config):
-
-    gen_config_file = pathlib.Path(root_folder).joinpath("_sentinelConfig.json")
-    f = open(gen_config_file, "w")
-    f.write(json.dumps(assembled_config))
-    f.close()
-
-
 def get_default_config_path():
-
+    """Return the directory containing the default config folder"""
     # Test config file
     current_dir = pathlib.Path(pathlib.Path(__file__)).parent
 
@@ -113,15 +86,19 @@ def get_default_config_path():
 
 
 def generate_config(environment_file):
+    """Generate the assembled config based on the environment file"""
 
     environment_file = pathlib.Path(environment_file)
+
     # Assembles the config into a single file
-    config = assemble_config(environment_file)
+    assembled_config_data = assemble_config(environment_file)
 
-    current_run_directory = pathlib.Path(environment_file.parent.joinpath(CONSTANTS.GENERATED_CONFIG_FILE_NAME))
+    # Generate output directory
+    current_run_directory = pathlib.Path(environment_file.parent.joinpath(config_constants.GENERATED_CONFIG_FILE_NAME))
 
+    # Writing it to disk
     f = open(current_run_directory, "w")
-    f.write(json.dumps(config, indent=4))
+    f.write(json.dumps(assembled_config_data, indent=4))
     f.close()
 
     return current_run_directory

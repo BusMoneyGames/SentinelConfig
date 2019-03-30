@@ -60,12 +60,12 @@ def assemble_config(sentinel_environment_config):
 
     run_config.update({"AssetTypes": asset_types})
 
-    current_run_directory = pathlib.Path(os.getcwd())
+    root_dir = sentinel_environment_config.parent
 
     # Resolves all relative paths in the project structure to absolute paths
     for each_value in environment_config_data.keys():
         each_relative_path = environment_config_data[each_value]
-        abs_path = current_run_directory.joinpath(each_relative_path).resolve()
+        abs_path = root_dir.joinpath(each_relative_path).resolve()
 
         L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
         environment_config_data[each_value] = str(abs_path)

@@ -1,4 +1,4 @@
-
+GENERATED_CONFIG_FILE_NAME = "_generated_sentinel_config.json"
 ENVIRONMENT_CATEGORY = "environment"
 ENGINE_ROOT_PATH = "engine_path"
 SENTINEL_ARTIFACTS_ROOT_PATH = "sentinel_artifacts_path"

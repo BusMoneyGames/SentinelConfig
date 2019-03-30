@@ -2,6 +2,7 @@ import pathlib
 import CONSTANTS
 import json
 import logging
+import os
 
 L = logging.getLogger()
 
@@ -38,41 +39,29 @@ def reset_ue_repo(run_config):
     L.debug(reset_result)
 
 
-def assemble_config(config_dir):
-    """
-    Reads the config file and
-    :param config_dir:
-    :return:
-    """
+def assemble_config(sentinel_environment_config):
+    """Assembles all the different config files into one """
 
-    L.debug(config_dir)
-    L.debug("Reading Config from: %s", config_dir)
-    config_dir = pathlib.Path(config_dir).resolve()
+    # Read environment config
+    L.debug("Loading: %s - exists: %s", sentinel_environment_config, sentinel_environment_config.exists())
 
-    default_config_path = get_default_config_path()
+    f = open(sentinel_environment_config, "r")
+    environment_config_data = json.load(f)
+    f.close()
 
-    if not config_dir.exists():
-        print("Unable to find a run config directory at: %", str(config_dir))
-    else:
-        pass
-        # print("Reading Config from directory: ", str(config_dir))
+    L.debug("Reading environment from: %s", sentinel_environment_config)
+
+    default_config_path = pathlib.Path(get_default_config_path())
+    L.debug("Default config folder %s - Exists: %s", default_config_path, default_config_path.exists())
 
     run_config = {}
     asset_types = []
     for each_file in default_config_path.glob("**/*.json"):
-
-        L.debug("Reading %s", each_file)
-
         # Skipping generated files
         if each_file.name.startswith("_"):
             continue
 
-        overwrite_file = pathlib.Path(config_dir.joinpath(each_file.name))
-
-        if overwrite_file.exists():
-            file_to_read = overwrite_file
-        else:
-            file_to_read = each_file
+        file_to_read = each_file
 
         f = open(str(file_to_read))
         json_data = json.load(f)
@@ -88,25 +77,19 @@ def assemble_config(config_dir):
 
     run_config.update({"AssetTypes": asset_types})
 
-    env_category = run_config[CONSTANTS.ENVIRONMENT_CATEGORY]
-    relative_project_path = pathlib.Path(env_category[CONSTANTS.UNREAL_PROJECT_ROOT])
-    project_root = config_dir.joinpath(relative_project_path).resolve()
-
-    L.info("Project Root: " + str(project_root))
+    current_run_directory = pathlib.Path(os.getcwd())
 
     # Resolves all relative paths in the project structure to absolute paths
-    for each_value in env_category.keys():
-        if not each_value == CONSTANTS.UNREAL_PROJECT_ROOT:
-            each_relative_path = env_category[each_value]
-            abs_path = project_root.joinpath(each_relative_path).resolve()
+    for each_value in environment_config_data.keys():
+        each_relative_path = environment_config_data[each_value]
+        abs_path = current_run_directory.joinpath(each_relative_path).resolve()
 
-            L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
-            env_category[each_value] = str(abs_path)
+        L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
+        environment_config_data[each_value] = str(abs_path)
 
-    env_category[CONSTANTS.UNREAL_PROJECT_ROOT] = str(project_root)
-    run_config[CONSTANTS.ENVIRONMENT_CATEGORY] = env_category
+    run_config[CONSTANTS.ENVIRONMENT_CATEGORY] = environment_config_data
 
-    _write_assembled_config(config_dir, run_config)
+    _write_assembled_config(current_run_directory, run_config)
 
     return run_config
 
@@ -118,6 +101,7 @@ def _write_assembled_config(root_folder, assembled_config):
     f.write(json.dumps(assembled_config))
     f.close()
 
+
 def get_default_config_path():
 
     # Test config file
@@ -128,21 +112,16 @@ def get_default_config_path():
     return path
 
 
-def generate_default_config():
+def generate_config(environment_file):
 
-    # Test config file
-    current_dir = pathlib.Path(pathlib.Path(__file__)).parent
-    output_path = current_dir.joinpath("..").resolve()
+    environment_file = pathlib.Path(environment_file)
+    # Assembles the config into a single file
+    config = assemble_config(environment_file)
 
-    path = current_dir.joinpath("defaultConfig").resolve()
+    current_run_directory = pathlib.Path(environment_file.parent.joinpath(CONSTANTS.GENERATED_CONFIG_FILE_NAME))
 
-    L.info("Generating default config at: %s", output_path)
-
-    gen_config_file = output_path.joinpath("_sentinelConfig.json")
-
-    config = assemble_config(path)
-    f = open(gen_config_file, "w")
-    f.write(json.dumps(config))
+    f = open(current_run_directory, "w")
+    f.write(json.dumps(config, indent=4))
     f.close()
 
-    return output_path
+    return current_run_directory

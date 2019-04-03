@@ -71,7 +71,9 @@ def _read_configs_from_directory(default_config_path):
                 f = open(str(each_sub_value))
                 json_data = json.load(f)
                 f.close()
-                category_dict[each_sub_value.name] = json_data
+                name = each_sub_value.with_suffix('').name
+                category_dict[name] = json_data
+
                 # data_entry = {each_sub_value.name: json_data}
 
             run_config[category_name] = category_dict

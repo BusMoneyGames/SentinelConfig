@@ -2,7 +2,6 @@ import pathlib
 import config_constants
 import json
 import logging
-import os
 
 L = logging.getLogger()
 
@@ -22,7 +21,7 @@ def verify_environment(run_config):
     print('\n')
 
 
-def assemble_config(sentinel_environment_config):
+def _assemble_config(sentinel_environment_config):
     """Assembles all the different config files into one """
 
     # Read environment config
@@ -37,28 +36,8 @@ def assemble_config(sentinel_environment_config):
     default_config_path = pathlib.Path(get_default_config_path())
     L.debug("Default config folder %s - Exists: %s", default_config_path, default_config_path.exists())
 
-    run_config = {}
-    asset_types = []
-    for each_file in default_config_path.glob("**/*.json"):
-        # Skipping generated files
-        if each_file.name.startswith("_"):
-            continue
-
-        file_to_read = each_file
-
-        f = open(str(file_to_read))
-        json_data = json.load(f)
-        f.close()
-
-        # TODO fix it so that the default folder can have fewer types that the target folder since now we only try and
-        # find an asset overview if it exists in the overwrite dir
-
-        if "type_" in file_to_read.name:
-            asset_types.append(json_data)
-        else:
-            run_config.update(json_data)
-
-    run_config.update({"AssetTypes": asset_types})
+    # TODO add an overwrite path config
+    run_config = _read_configs_from_directory(default_config_path)
 
     root_dir = sentinel_environment_config.parent
 
@@ -72,6 +51,30 @@ def assemble_config(sentinel_environment_config):
 
     run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
 
+    return run_config
+
+
+def _read_configs_from_directory(default_config_path):
+    """Creates a config file from a directory that has folders and json files"""
+    run_config = {}
+    for each_entry in default_config_path.glob("*/"):
+
+        # category
+        if each_entry.is_dir():
+
+            category_name = each_entry.name
+            # Finding the values into the dict
+            category_dict = {}
+
+            for each_sub_value in each_entry.glob("**/*.json"):
+                # Reading the json file
+                f = open(str(each_sub_value))
+                json_data = json.load(f)
+                f.close()
+                category_dict[each_sub_value.name] = json_data
+                # data_entry = {each_sub_value.name: json_data}
+
+            run_config[category_name] = category_dict
     return run_config
 
 
@@ -91,7 +94,7 @@ def generate_config(environment_file):
     environment_file = pathlib.Path(environment_file)
 
     # Assembles the config into a single file
-    assembled_config_data = assemble_config(environment_file)
+    assembled_config_data = _assemble_config(environment_file)
 
     # Generate output directory
     current_run_directory = pathlib.Path(environment_file.parent.joinpath(config_constants.GENERATED_CONFIG_FILE_NAME))

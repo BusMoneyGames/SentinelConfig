@@ -2,7 +2,7 @@ import pathlib
 import config_constants
 import json
 import logging
-
+import os
 L = logging.getLogger()
 
 
@@ -56,27 +56,39 @@ def _assemble_config(sentinel_environment_config):
 
 def _read_configs_from_directory(default_config_path):
     """Creates a config file from a directory that has folders and json files"""
+
     run_config = {}
+
     for each_entry in default_config_path.glob("*/"):
 
         # category
+        json_data = {}
         if each_entry.is_dir():
 
             category_name = each_entry.name
+
             # Finding the values into the dict
             category_dict = {}
 
-            for each_sub_value in each_entry.glob("**/*.json"):
+            entries = each_entry.glob("**/*.json")
+
+            for each_sub_value in entries:
+
                 # Reading the json file
                 f = open(str(each_sub_value))
                 json_data = json.load(f)
                 f.close()
+
                 name = each_sub_value.with_suffix('').name
+
                 category_dict[name] = json_data
 
-                # data_entry = {each_sub_value.name: json_data}
+            # If there was only one entry then we skip the file name and just add the category
+            if len(os.listdir(each_entry)) == 1:
+                run_config[category_name] = json_data
+            else:
+                run_config[category_name] = category_dict
 
-            run_config[category_name] = category_dict
     return run_config
 
 

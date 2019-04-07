@@ -1,6 +1,6 @@
 {
    "run_scripts": {
-      "run_sentinel_test": "%~dp0WindowsNoEditor/sentinelUE4.exe -sentinelTest_Default -windowed"
+      "run_sentinel_test": "%~dp0WindowsNoEditor/sentinelUE4.exe Map_UITest -sentinelTest_Default -windowed"
    },
    "should_compile": true,
    "build_configuration": "Development",

@@ -6,11 +6,6 @@
    "build_configuration": "Development",
    "build_platform": "Win64",
    "build_command": "BuildCookRun",
-   "editor_compile_flags": [
-      "TargetType=Editor",
-      "progress",
-      "NoHotReloadFromIDE"
-   ],
    "build_flags": [
       "cook",
       "iterate",

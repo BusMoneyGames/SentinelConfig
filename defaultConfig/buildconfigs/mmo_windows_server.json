@@ -1,6 +1,6 @@
 {
    "run_scripts": {
-      "run_servers": "start %~dp0WindowsNoEditor/DriftMMOPlugin.exe ?listen -port=20000 -nullRHI -log \n start %~dp0WindowsNoEditor/DriftMMOPlugin.exe ?listen -port=20001 -nullRHI -log"
+      "run_servers": "start %~dp0WindowsNoEditor/DriftMMOPlugin.exe /Game/Maps/Map_Red_P?listen -port=20000 -nullRHI -log \n start %~dp0WindowsNoEditor/DriftMMOPlugin.exe /Game/Maps/Map_Blue_P?listen -port=20001 -nullRHI -log"
    },
    "should_compile": true,
    "build_configuration": "Development",

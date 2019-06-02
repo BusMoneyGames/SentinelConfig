@@ -20,6 +20,18 @@ def verify_environment(run_config):
 
     print('\n')
 
+def deepupdate(original, update):
+    """
+    Recursively update a dict.
+    Subdict's won't be overwritten but also updated.
+    """
+    for key, value in original.items():
+        if key not in update:
+            update[key] = value
+        elif isinstance(value, dict):
+            deepupdate(value, update[key])
+    return update
+
 
 def _assemble_config(sentinel_environment_config):
     """Assembles all the different config files into one """
@@ -31,15 +43,22 @@ def _assemble_config(sentinel_environment_config):
     environment_config_data = json.load(f)
     f.close()
 
+    root_dir = sentinel_environment_config.parent
     L.debug("Reading environment from: %s", sentinel_environment_config)
 
     default_config_path = pathlib.Path(get_default_config_path())
     L.debug("Default config folder %s - Exists: %s", default_config_path, default_config_path.exists())
 
     # TODO add an overwrite path config
-    run_config = _read_configs_from_directory(default_config_path)
+    default_config = _read_configs_from_directory(default_config_path)
 
-    root_dir = sentinel_environment_config.parent
+    # Read the overwrite config
+    overwrite_config_path = environment_config_data["sentinel_config_root_path"]
+    overwrite_config_path = root_dir.joinpath(overwrite_config_path).resolve()
+    overwrite_config = _read_configs_from_directory(overwrite_config_path)
+
+    # Combine the run config and overwrite from the overwrite config folder
+    run_config = deepupdate(default_config, overwrite_config)
 
     # Resolves all relative paths in the project structure to absolute paths
     for each_value in environment_config_data.keys():
@@ -60,7 +79,6 @@ def _read_configs_from_directory(default_config_path):
     run_config = {}
 
     for each_entry in default_config_path.glob("*/"):
-
         # category
         json_data = {}
         if each_entry.is_dir():

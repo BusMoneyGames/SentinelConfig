@@ -20,6 +20,7 @@ def verify_environment(run_config):
 
     print('\n')
 
+
 def deepupdate(original, update):
     """
     Recursively update a dict.
@@ -60,17 +61,40 @@ def _assemble_config(sentinel_environment_config):
     # Combine the run config and overwrite from the overwrite config folder
     run_config = deepupdate(default_config, overwrite_config)
 
+    environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
+    environment_config_data = add_version_to_artifact_path(run_config, environment_config_data)
+
+    run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
+
+    return run_config
+
+
+def add_version_to_artifact_path(run_config, environment_config_data):
+
+    # TODO read this from a constant
+    artifacts_path = environment_config_data["sentinel_artifacts_path"]
+    path = pathlib.Path(artifacts_path)
+
+    if "version_control" in run_config:
+        version = "shortHash"
+        environment_config_data["sentinel_artifacts_path"] = path.joinpath("shortHash").as_posix()
+    else:
+        computer_name = os.getenv('COMPUTERNAME')
+        environment_config_data["sentinel_artifacts_path"] = path.joinpath(computer_name).as_posix()
+
+    return environment_config_data
+
+
+def convert_environment_paths_to_abs(environment_config_data, root_dir):
     # Resolves all relative paths in the project structure to absolute paths
     for each_value in environment_config_data.keys():
         each_relative_path = environment_config_data[each_value]
         abs_path = root_dir.joinpath(each_relative_path).resolve()
 
         L.debug(each_value + " :" + str(abs_path) + " Exists:  " + str(abs_path.exists()))
-        environment_config_data[each_value] = str(abs_path)
+        environment_config_data[each_value] = str(abs_path.as_posix())
 
-    run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
-
-    return run_config
+    return environment_config_data
 
 
 def _read_configs_from_directory(default_config_path):

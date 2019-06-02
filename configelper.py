@@ -75,8 +75,8 @@ def add_version_to_artifact_path(run_config, environment_config_data):
     path = pathlib.Path(artifacts_path)
 
     if "_version_control" in run_config:
-        version = "shortHash"
-        environment_config_data["sentinel_artifacts_path"] = path.joinpath("shortHash").as_posix()
+        commit_id = run_config["_version_control"]["commit_id"]
+        environment_config_data["sentinel_artifacts_path"] = path.joinpath(commit_id).as_posix()
     else:
         computer_name = os.getenv('COMPUTERNAME')
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(computer_name).as_posix()

@@ -35,14 +35,14 @@ def _load_environment_config(overwrite_path=""):
 
 
 @click.group()
-@click.option('--path', default="", help="path to the config overwrite folder")
+@click.option('--project_root', default="", help="path to the config overwrite folder")
 @click.option('--debug', default=False, help="Turns on debug messages")
 @click.pass_context
-def cli(ctx, path, debug):
+def cli(ctx, project_root, debug):
     """Sentinel Unreal Component handles running commands interacting with unreal engine"""
 
     ctx.ensure_object(dict)
-    ctx.obj['CONFIG_OVERWRITE'] = path
+    ctx.obj['CONFIG_OVERWRITE'] = project_root
 
     if debug:
         L.setLevel(logging.DEBUG)

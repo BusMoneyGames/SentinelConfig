@@ -21,7 +21,7 @@ def verify_environment(run_config):
     print('\n')
 
 
-def deepupdate(original, update):
+def merge_dicts(original, update):
     """
     Recursively update a dict.
     Subdict's won't be overwritten but also updated.
@@ -30,7 +30,7 @@ def deepupdate(original, update):
         if key not in update:
             update[key] = value
         elif isinstance(value, dict):
-            deepupdate(value, update[key])
+            merge_dicts(value, update[key])
     return update
 
 
@@ -50,7 +50,6 @@ def _assemble_config(sentinel_environment_config):
     default_config_path = pathlib.Path(get_default_config_path())
     L.debug("Default config folder %s - Exists: %s", default_config_path, default_config_path.exists())
 
-    # TODO add an overwrite path config
     default_config = _read_configs_from_directory(default_config_path)
 
     # Read the overwrite config
@@ -59,7 +58,7 @@ def _assemble_config(sentinel_environment_config):
     overwrite_config = _read_configs_from_directory(overwrite_config_path)
 
     # Combine the run config and overwrite from the overwrite config folder
-    run_config = deepupdate(default_config, overwrite_config)
+    run_config = merge_dicts(default_config, overwrite_config)
 
     environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
     environment_config_data = add_version_to_artifact_path(run_config, environment_config_data)
@@ -75,7 +74,7 @@ def add_version_to_artifact_path(run_config, environment_config_data):
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
     path = pathlib.Path(artifacts_path)
 
-    if "version_control" in run_config:
+    if "_version_control" in run_config:
         version = "shortHash"
         environment_config_data["sentinel_artifacts_path"] = path.joinpath("shortHash").as_posix()
     else:

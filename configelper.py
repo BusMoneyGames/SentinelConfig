@@ -34,10 +34,9 @@ def merge_dicts(original, update):
     return update
 
 
-def _assemble_config(sentinel_environment_config):
+def _assemble_config(sentinel_environment_config, skip_versioning="False"):
     """Assembles all the different config files into one """
 
-    # Read environment config
     L.debug("Loading: %s - exists: %s", sentinel_environment_config, sentinel_environment_config.exists())
 
     f = open(sentinel_environment_config, "r")
@@ -61,7 +60,9 @@ def _assemble_config(sentinel_environment_config):
     run_config = merge_dicts(default_config, overwrite_config)
 
     environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
-    environment_config_data = add_version_to_artifact_path(run_config, environment_config_data)
+
+    if skip_versioning.lower() == "false":
+        environment_config_data = add_version_to_artifact_path(run_config, environment_config_data)
 
     run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
 
@@ -100,11 +101,16 @@ def _read_configs_from_directory(default_config_path):
     """Creates a config file from a directory that has folders and json files"""
 
     run_config = {}
-
+    temp_config_files = []
+    temp_config_folders = []
     for each_entry in default_config_path.glob("*/"):
         # category
         json_data = {}
         if each_entry.is_dir():
+
+            # Check if its a temp config folder and mark it for delete
+            if each_entry.name.startswith("_"):
+                temp_config_folders.append(each_entry)
 
             category_name = each_entry.name
 
@@ -120,6 +126,10 @@ def _read_configs_from_directory(default_config_path):
                 json_data = json.load(f)
                 f.close()
 
+                # Check if its a temp config and add it to the delete list if so
+                if each_sub_value.name.startswith("_"):
+                    temp_config_files.append(each_sub_value)
+
                 name = each_sub_value.with_suffix('').name
 
                 category_dict[name] = json_data
@@ -129,6 +139,12 @@ def _read_configs_from_directory(default_config_path):
                 run_config[category_name] = json_data
             else:
                 run_config[category_name] = category_dict
+
+    for each_temp_config in temp_config_files:
+        os.remove(each_temp_config)
+
+    for each_temp_config_folder in temp_config_folders:
+        os.rmdir(each_temp_config_folder)
 
     return run_config
 
@@ -143,13 +159,13 @@ def get_default_config_path():
     return path
 
 
-def generate_config(environment_file):
+def generate_config(environment_file, skip_versioning=False):
     """Generate the assembled config based on the environment file"""
 
     environment_file = pathlib.Path(environment_file)
 
     # Assembles the config into a single file
-    assembled_config_data = _assemble_config(environment_file)
+    assembled_config_data = _assemble_config(environment_file, skip_versioning)
 
     # Generate output directory
     current_run_directory = pathlib.Path(environment_file.parent.joinpath(config_constants.GENERATED_CONFIG_FILE_NAME))

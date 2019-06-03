@@ -36,13 +36,15 @@ def _load_environment_config(overwrite_path=""):
 
 @click.group()
 @click.option('--project_root', default="", help="path to the config overwrite folder")
+@click.option('--skip_version', default=False, help="Skips output version")
 @click.option('--debug', default=False, help="Turns on debug messages")
 @click.pass_context
-def cli(ctx, project_root, debug):
+def cli(ctx, project_root, debug, skip_version):
     """Sentinel Unreal Component handles running commands interacting with unreal engine"""
 
     ctx.ensure_object(dict)
     ctx.obj['CONFIG_OVERWRITE'] = project_root
+    ctx.obj['SKIP_VERSION'] = skip_version
 
     if debug:
         L.setLevel(logging.DEBUG)
@@ -61,8 +63,10 @@ def generate(ctx, output):
     """Generates a config file """
 
     config_path = ctx.obj['CONFIG_OVERWRITE']
+    skip_version_flag = ctx.obj["SKIP_VERSION"]
+
     sentinel_environment_config = _load_environment_config(config_path)
-    configelper.generate_config(sentinel_environment_config)
+    configelper.generate_config(sentinel_environment_config, skip_version_flag)
 
     # TODO output
     if output == 'text':

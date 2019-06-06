@@ -5,6 +5,8 @@
    "build_command": "BuildCookRun",
    "build_flags": [
       "cook",
+      "server",
+      "serverconfig=Development",
       "nocompileeditor",
       "build",
       "stage",

@@ -3,5 +3,5 @@
       "progress",
       "NoHotReloadFromIDE"
    ],
-  "components": []
+  "components": ["ShaderCompileWorker", "UnrealPak"]
 }

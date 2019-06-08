@@ -75,8 +75,8 @@ def add_version_to_artifact_path(run_config, environment_config_data):
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
     path = pathlib.Path(artifacts_path)
 
-    if "_version_control" in run_config:
-        commit_id = run_config["_version_control"]["commit_id"]
+    if "gen_version_control" in run_config:
+        commit_id = run_config["gen_version_control"]["commit_id"]
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(commit_id).as_posix()
     else:
         computer_name = os.getenv('COMPUTERNAME')
@@ -127,7 +127,7 @@ def _read_configs_from_directory(default_config_path):
                 f.close()
 
                 # Check if its a temp config and add it to the delete list if so
-                if each_sub_value.name.startswith("_"):
+                if each_sub_value.name.startswith("gen_"):
                     temp_config_files.append(each_sub_value)
 
                 name = each_sub_value.with_suffix('').name
@@ -165,7 +165,7 @@ def generate_config(environment_file, skip_versioning=False):
     environment_file = pathlib.Path(environment_file)
 
     # Assembles the config into a single file
-    assembled_config_data = _assemble_config(environment_file, skip_versioning)
+    assembled_config_data = _assemble_config(environment_file, str(skip_versioning))
 
     # Generate output directory
     current_run_directory = pathlib.Path(environment_file.parent.joinpath(config_constants.GENERATED_CONFIG_FILE_NAME))

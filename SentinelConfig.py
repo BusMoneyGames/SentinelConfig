@@ -94,7 +94,7 @@ def make_default_config(ctx, project_name,
     default_config_path = pathlib.Path(ctx.obj['CONFIG_OVERWRITE']).joinpath("_sentinel_root.json")
 
     if not project_name:
-        project_name = "No Project Name Set"
+        project_name = ""
     if not engine_path:
         engine_path = "UnrealEngine/"
     if not config_path:

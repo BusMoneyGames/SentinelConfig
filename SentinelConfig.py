@@ -70,7 +70,7 @@ def generate(ctx, output):
 
     # TODO output
     if output == 'text':
-        print("Generated config...")
+        print("Config Refreshed!")
     elif output == 'json':
         print(json.dumps({"message": "Generated Config"}, indent=4))
 

@@ -75,5 +75,48 @@ def generate(ctx, output):
         print(json.dumps({"message": "Generated Config"}, indent=4))
 
 
+@cli.command()
+@click.option('--project_name', default="", help="Name of the project")
+@click.option('--engine_path', default="", help="Relative Path to the engine")
+@click.option('--config_path', default="", help="Path to a custom config folder")
+@click.option('--version_control_root', default="", help="Path to the version control root")
+@click.option('--artifacts_root', default="", help="Path to the artifacts root")
+@click.option('--cache_path', default="", help="Path to the sentinel cache")
+@click.pass_context
+def make_default_config(ctx, project_name,
+                        engine_path,
+                        config_path,
+                        version_control_root,
+                        artifacts_root,
+                        cache_path):
+
+    """Generate the default config for an unreal project"""
+    default_config_path = pathlib.Path(ctx.obj['CONFIG_OVERWRITE']).joinpath("_sentinel_root.json")
+
+    if not project_name:
+        project_name = "No Project Name Set"
+    if not engine_path:
+        engine_path = "UnrealEngine/"
+    if not config_path:
+        config_path = "SentinelConfig/"
+    if not version_control_root:
+        version_control_root = ""
+    if not artifacts_root:
+        artifacts_root = "SentinelArtifacts/"
+    if not cache_path:
+        cache_path = "SentinelCache/"
+
+    config = {"project_root_path": project_name,
+              "engine_root_path": engine_path,
+              "sentinel_config_root_path": config_path,
+              "version_control_root": version_control_root,
+              "sentinel_artifacts_path": artifacts_root,
+              "sentinel_cache_path": cache_path}
+
+    f = open(default_config_path, "w")
+    f.write(json.dumps(config, indent=4))
+    f.close()
+
+
 if __name__ == "__main__":
     cli()

@@ -81,6 +81,7 @@ def generate(ctx, output):
 @click.option('--config_path', default="", help="Path to a custom config folder")
 @click.option('--version_control_root', default="", help="Path to the version control root")
 @click.option('--artifacts_root', default="", help="Path to the artifacts root")
+@click.option('--sentinel_database', default="", help="Path to the sentinel database")
 @click.option('--cache_path', default="", help="Path to the sentinel cache")
 @click.pass_context
 def make_default_config(ctx, project_name,
@@ -88,6 +89,7 @@ def make_default_config(ctx, project_name,
                         config_path,
                         version_control_root,
                         artifacts_root,
+                        sentinel_database,
                         cache_path):
 
     """Generate the default config for an unreal project"""
@@ -103,6 +105,8 @@ def make_default_config(ctx, project_name,
         version_control_root = ""
     if not artifacts_root:
         artifacts_root = "SentinelArtifacts/"
+    if not sentinel_database:
+        sentinel_database = "SentinelDB/"
     if not cache_path:
         cache_path = "SentinelCache/"
 
@@ -111,6 +115,7 @@ def make_default_config(ctx, project_name,
               "sentinel_config_root_path": config_path,
               "version_control_root": version_control_root,
               "sentinel_artifacts_path": artifacts_root,
+              "sentinel_database": sentinel_database,
               "sentinel_cache_path": cache_path}
 
     f = open(default_config_path, "w")

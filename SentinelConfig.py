@@ -81,6 +81,7 @@ def generate(ctx, output):
 @click.option('--config_path', default="", help="Path to a custom config folder")
 @click.option('--version_control_root', default="", help="Path to the version control root")
 @click.option('--artifacts_root', default="", help="Path to the artifacts root")
+@click.option('--s3_data_base_location', default="", help="Path to the database")
 @click.option('--sentinel_database', default="", help="Path to the sentinel database")
 @click.option('--cache_path', default="", help="Path to the sentinel cache")
 @click.pass_context
@@ -90,6 +91,7 @@ def make_default_config(ctx, project_name,
                         version_control_root,
                         artifacts_root,
                         sentinel_database,
+                        s3_data_base_location,
                         cache_path):
 
     """Generate the default config for an unreal project"""
@@ -109,6 +111,8 @@ def make_default_config(ctx, project_name,
         sentinel_database = "SentinelDB/"
     if not cache_path:
         cache_path = "SentinelCache/"
+    if not s3_data_base_location:
+        s3_data_base_location = "Not Set"
 
     config = {"project_root_path": project_name,
               "engine_root_path": engine_path,
@@ -116,7 +120,8 @@ def make_default_config(ctx, project_name,
               "version_control_root": version_control_root,
               "sentinel_artifacts_path": artifacts_root,
               "sentinel_database": sentinel_database,
-              "sentinel_cache_path": cache_path}
+              "sentinel_cache_path": cache_path,
+              "s3_data_base_location": s3_data_base_location}
 
     f = open(default_config_path, "w")
     f.write(json.dumps(config, indent=4))

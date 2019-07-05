@@ -26,6 +26,7 @@ def merge_dicts(original, update):
     Recursively update a dict.
     Subdict's won't be overwritten but also updated.
     """
+
     for key, value in original.items():
         if key not in update:
             update[key] = value
@@ -75,7 +76,7 @@ def add_version_to_artifact_path(run_config, environment_config_data):
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
     path = pathlib.Path(artifacts_path)
 
-    if "gen_version_control" in run_config:
+    if "gen_version_control" in run_config.keys():
         commit_id = run_config["gen_version_control"]["commit_id"]
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(commit_id).as_posix()
     else:
@@ -89,8 +90,7 @@ def convert_environment_paths_to_abs(environment_config_data, root_dir):
     # Resolves all relative paths in the project structure to absolute paths
     for each_value in environment_config_data.keys():
         each_relative_path = environment_config_data[each_value]
-
-        if each_relative_path.endswith("/"):
+        if each_relative_path.endswith("/") or each_relative_path == "":
             value = root_dir.joinpath(each_relative_path).resolve()
             L.debug(each_value + " :" + str(value) + " Exists:  " + str(value.exists()))
         else:

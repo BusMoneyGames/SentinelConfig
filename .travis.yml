@@ -1,1 +1,6 @@
 language: python
+jobs:
+  include:
+    - stage: test
+      script: ./SentinelConfig.py
+    - # stage name not required, will continue to use `test`

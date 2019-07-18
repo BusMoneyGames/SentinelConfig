@@ -1,6 +1,9 @@
 language: python
+install:
+  - pip install pipenv
+  - pipenv install
 jobs:
   include:
     - stage: test
-      script: ./SentinelConfig.py
+      script: pipenv run python ./SentinelConfig.py
     - # stage name not required, will continue to use `test`

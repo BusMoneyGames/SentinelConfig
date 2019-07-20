@@ -5,5 +5,5 @@ install:
 jobs:
   include:
     - stage: test
-      script: pipenv run python ./SentinelConfig.py
+      script: pipenv run python ./SentinelEnvironment.py
     - # stage name not required, will continue to use `test`

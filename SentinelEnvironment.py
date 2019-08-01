@@ -5,6 +5,7 @@ import json
 import os
 import configelper
 import config_constants
+
 L = logging.getLogger()
 
 
@@ -35,17 +36,19 @@ def _load_environment_config(overwrite_path=""):
 
 
 @click.group()
-@click.option('--project_root', default="", help="path to the config overwrite folder")
-@click.option('--skip_version', default=False, help="Skips output version")
-@click.option('--debug', default=False, help="Turns on debug messages")
+@click.option('--project_root', default="", help="Path to the config overwrite folder")
+@click.option('--output', type=click.Choice(['text', 'json']), default='text', help="Output type.")
+@click.option('--no_version', type=click.Choice(['true', 'false']), default='true', help="Skips output version")
+@click.option('--debug', type=click.Choice(['true', 'false']), default='false',  help="Verbose logging")
 @click.pass_context
-def cli(ctx, project_root, debug, skip_version):
+def cli(ctx, project_root, debug, output, no_version):
     """Sentinel Unreal Component handles running commands interacting with unreal engine"""
 
     ctx.ensure_object(dict)
     ctx.obj['CONFIG_OVERWRITE'] = project_root
-    ctx.obj['SKIP_VERSION'] = skip_version
+    ctx.obj['SKIP_VERSION'] = no_version
 
+    print("Got here")
     if debug:
         L.setLevel(logging.DEBUG)
         message_format = '%(levelname)s - %(message)s '

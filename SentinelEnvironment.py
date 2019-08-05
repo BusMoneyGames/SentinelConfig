@@ -98,6 +98,9 @@ def make_default_config(ctx, project_name,
                         cache_path):
 
     """Generate the default config for an unreal project"""
+
+    L.info("Generating default config")
+
     default_config_path = pathlib.Path(ctx.obj['CONFIG_OVERWRITE']).joinpath("_sentinel_root.json")
 
     if not project_name:

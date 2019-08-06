@@ -1,5 +1,6 @@
 {
    "should_compile": true,
+   "compile_profile":"default_source",
    "build_configuration": "Development",
    "build_platform": "Linux",
    "build_command": "BuildCookRun",

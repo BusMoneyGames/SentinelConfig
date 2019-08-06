@@ -6,6 +6,24 @@ import os
 L = logging.getLogger()
 
 
+def add_engine_information(run_config):
+    """Checks if the engine is pre-intalled and compiled or is cloned from git"""
+
+    # TODO Change this so that it checks the the actual registry
+
+    engine_path = run_config["environment"]["engine_root_path"]
+
+    for each_file in os.listdir(engine_path):
+        if "generateprojectfiles" in each_file.lower():
+
+            # TODO make sure that the unreal engine structure entry actually exists before trying to add to it
+            run_config["unreal_engine_structure"]["is_installed"] = False
+            return run_config
+
+    run_config["unreal_engine_structure"]["is_installed"] = True
+
+    return run_config
+
 def verify_environment(run_config):
 
     env_config = run_config[config_constants.ENVIRONMENT_CATEGORY]
@@ -66,6 +84,9 @@ def _assemble_config(sentinel_environment_config, skip_versioning="False"):
         environment_config_data = add_version_to_artifact_path(run_config, environment_config_data)
 
     run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
+
+    # Add information about the engine
+    run_config = add_engine_information(run_config)
 
     return run_config
 

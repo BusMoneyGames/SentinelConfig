@@ -8,6 +8,7 @@
       "SkipDeveloperFolders",
       "allowcommandletrendering",
       "ignorechangelist",
-      "projectonly"
+      "projectonly",
+      "mapsonly"
    ]
 }

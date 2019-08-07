@@ -5,7 +5,6 @@
       "BuildReflectionCaptures",
       "ForceEnableHLODForLevel",
       "ShouldBuildHLOD",
-      "Map=/Game/Maps/Map_StartupTest",
       "SkipDeveloperFolders",
       "allowcommandletrendering",
       "ignorechangelist",

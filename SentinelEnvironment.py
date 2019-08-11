@@ -6,7 +6,8 @@ import os
 import configelper
 import config_constants
 
-L = logging.getLogger()
+from SentinelInternalLogger.logger import L
+
 
 
 def _load_environment_config(overwrite_path=""):
@@ -43,6 +44,9 @@ def _load_environment_config(overwrite_path=""):
 @click.pass_context
 def cli(ctx, project_root, debug, output, no_version):
     """Sentinel Unreal Component handles running commands interacting with unreal engine"""
+
+    if debug == 'true':
+        L.setLevel(logging.DEBUG)
 
     ctx.ensure_object(dict)
     ctx.obj['CONFIG_OVERWRITE'] = project_root

@@ -48,16 +48,6 @@ def cli(ctx, project_root, debug, output, no_version):
     ctx.obj['CONFIG_OVERWRITE'] = project_root
     ctx.obj['SKIP_VERSION'] = no_version
 
-    print("Got here")
-    if debug:
-        L.setLevel(logging.DEBUG)
-        message_format = '%(levelname)s - %(message)s '
-    else:
-        message_format = '%(levelname)s %(message)s '
-        L.setLevel(logging.ERROR)
-
-    logging.basicConfig(format=message_format)
-
 
 @cli.command()
 @click.option('-o', '--output', type=click.Choice(['text', 'json']), default='text', help="Output type.")
@@ -73,7 +63,7 @@ def generate(ctx, output):
 
     # TODO output
     if output == 'text':
-        print("Config Refreshed!")
+        L.info("Config Refreshed!")
     elif output == 'json':
         print(json.dumps({"message": "Generated Config"}, indent=4))
 

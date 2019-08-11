@@ -9,7 +9,6 @@ import config_constants
 from SentinelInternalLogger.logger import L
 
 
-
 def _load_environment_config(overwrite_path=""):
     """Finds the config file that contains the environment information"""
     # Figure out where the script is run from
@@ -55,21 +54,22 @@ def cli(ctx, project_root, debug, output, no_version):
 
 @cli.command()
 @click.option('-o', '--output', type=click.Choice(['text', 'json']), default='text', help="Output type.")
+@click.option('--default', type=click.Choice(['true', 'false']), default='false', help="generates the default config")
 @click.pass_context
-def generate(ctx, output):
+def generate(ctx, output, default):
     """Generates a config file """
 
     config_path = ctx.obj['CONFIG_OVERWRITE']
     skip_version_flag = ctx.obj["SKIP_VERSION"]
 
     sentinel_environment_config = _load_environment_config(config_path)
-    configelper.generate_config(sentinel_environment_config, skip_version_flag)
 
-    # TODO output
-    if output == 'text':
-        L.info("Config Refreshed!")
-    elif output == 'json':
-        print(json.dumps({"message": "Generated Config"}, indent=4))
+    if default == "true":
+        configelper.delete_all_generated_configs(sentinel_environment_config)
+
+    configelper.generate_config(sentinel_environment_config)
+
+    L.debug("Config Refreshed!")
 
 
 @cli.command()

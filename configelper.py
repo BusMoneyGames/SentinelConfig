@@ -35,7 +35,7 @@ def get_engine_path_from_windows_registry(engine_id):
 
     value, regtype = winreg.QueryValueEx(key, "InstalledDirectory")
 
-    return value
+    return str(value)
 
 
 
@@ -71,6 +71,7 @@ def merge_dicts(original, update):
             merge_dicts(value, update[key])
     return update
 
+
 def get_engine_path_from_project_file(environment_config_data, root_dir):
 
     relative_path = environment_config_data["project_root_path"]
@@ -83,7 +84,6 @@ def get_engine_path_from_project_file(environment_config_data, root_dir):
         break
 
     if not uproject_file == "":
-        print(uproject_file)
 
         f = open(uproject_file, "r")
         uproject_data = json.load(f)
@@ -91,11 +91,10 @@ def get_engine_path_from_project_file(environment_config_data, root_dir):
 
         engine_association = uproject_data["EngineAssociation"]
 
-        engine = pathlib.Path(root_dir).joinpath(engine_association).resolve()
-
+        engine = pathlib.Path(project_root).joinpath(engine_association).resolve()
         # Relative path to the engine
         if engine.exists():
-            return engine
+            return engine.as_posix()
         else:
             engine = get_engine_path_from_windows_registry(engine_association)
             return engine
@@ -127,9 +126,10 @@ def _assemble_config(sentinel_environment_config):
     run_config = merge_dicts(default_config, overwrite_config)
 
     # Add engine path
-    environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
 
     environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
+
+    environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
 
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
     path = pathlib.Path(artifacts_path)

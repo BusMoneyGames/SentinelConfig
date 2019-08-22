@@ -6,6 +6,39 @@ import os
 L = logging.getLogger()
 
 
+def get_engine_path_from_windows_registry(engine_id):
+
+    """ Read engine path from the windows registry"""
+
+    import winreg
+
+    reg_path = "\\".join([r"SOFTWARE\EpicGames\Unreal Engine", engine_id])
+
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path)
+    except FileNotFoundError:
+        import platform
+
+        bitness = platform.architecture()[0]
+        if bitness == '32bit':
+            other_view_flag = winreg.KEY_WOW64_64KEY
+        elif bitness == '64bit':
+            other_view_flag = winreg.KEY_WOW64_32KEY
+
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path,
+                                 access=winreg.KEY_READ | other_view_flag)
+        except FileNotFoundError:
+            '''
+            We really could not find the key in both views.
+            '''
+
+    value, regtype = winreg.QueryValueEx(key, "InstalledDirectory")
+
+    return value
+
+
+
 def add_engine_information(run_config):
     """Checks if the engine is pre-intalled and compiled or is cloned from git"""
 
@@ -25,21 +58,6 @@ def add_engine_information(run_config):
     return run_config
 
 
-def verify_environment(run_config):
-
-    env_config = run_config[config_constants.ENVIRONMENT_CATEGORY]
-    print('\n')
-    print("%-75s %-25s %4s" % ("Path", "Value", "Exists"))
-
-    for each_env_config in env_config.keys():
-        path = pathlib.Path(env_config[each_env_config])
-        exists = path.exists()
-
-        print("%-75s %-25s %4s" % (path, each_env_config, str(exists)))
-
-    print('\n')
-
-
 def merge_dicts(original, update):
     """
     Recursively update a dict.
@@ -52,6 +70,35 @@ def merge_dicts(original, update):
         elif isinstance(value, dict):
             merge_dicts(value, update[key])
     return update
+
+def get_engine_path_from_project_file(environment_config_data, root_dir):
+
+    relative_path = environment_config_data["project_root_path"]
+
+    project_root = pathlib.Path(root_dir).joinpath(relative_path).resolve()
+
+    uproject_file = ""
+    for each_file in project_root.glob("*.uproject"):
+        uproject_file = each_file
+        break
+
+    if not uproject_file == "":
+        print(uproject_file)
+
+        f = open(uproject_file, "r")
+        uproject_data = json.load(f)
+        f.close()
+
+        engine_association = uproject_data["EngineAssociation"]
+
+        engine = pathlib.Path(root_dir).joinpath(engine_association).resolve()
+
+        # Relative path to the engine
+        if engine.exists():
+            return engine
+        else:
+            engine = get_engine_path_from_windows_registry(engine_association)
+            return engine
 
 
 def _assemble_config(sentinel_environment_config):
@@ -78,6 +125,9 @@ def _assemble_config(sentinel_environment_config):
 
     # Combine the run config and overwrite from the overwrite config folder
     run_config = merge_dicts(default_config, overwrite_config)
+
+    # Add engine path
+    environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
 
     environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
 

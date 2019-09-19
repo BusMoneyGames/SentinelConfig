@@ -129,7 +129,8 @@ def _assemble_config(sentinel_environment_config):
 
     environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
 
-    environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
+    if "engine_root_path" not in environment_config_data:
+        environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
 
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
     path = pathlib.Path(artifacts_path)

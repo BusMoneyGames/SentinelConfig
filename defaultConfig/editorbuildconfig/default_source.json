@@ -3,5 +3,5 @@
       "progress",
       "NoHotReloadFromIDE"
    ],
-  "components": ["ShaderCompileWorker", "UnrealLightmass" ]
+  "components": ["ShaderCompileWorker", "UnrealLightmass","UnrealFrontend" ]
 }

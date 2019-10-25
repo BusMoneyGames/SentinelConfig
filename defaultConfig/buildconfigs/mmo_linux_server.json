@@ -1,5 +1,7 @@
 {
    "should_compile": true,
+   "compress": false,
+   "deploy_location": "",
    "compile_profile":"default_source",
    "build_configuration": "Development",
    "build_platform": "Linux",

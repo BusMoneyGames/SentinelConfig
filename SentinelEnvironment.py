@@ -72,20 +72,23 @@ def generate(ctx, output, default):
     L.debug("Config Refreshed!")
 
 @cli.command()
-@click.option('--value', help="Output type.")
+@click.argument('values', nargs=-1)
 @click.pass_context
-def get_config_environment_value(ctx, value):
+def get_config_environment_value(ctx, values):
     config_path = ctx.obj['CONFIG_OVERWRITE']
     environment_config = _load_environment_config(config_path)
     generated_config = configelper.get_generated_config_location(environment_config)
 
+    out = []
     with open(generated_config) as json_file:
         data = json.load(json_file)["environment"]
+        for val in values:
+            if val in data:
+                out.append(data[val])
+            else:
+                print("Unable to find : %s in environment config", val)
 
-    if value in data:
-        print(data[value])
-    else:
-        print("Unable to find : %s in environment config", value)
+    print(" ".join(out))
 
 @cli.command()
 @click.option('--project_name', default="", help="Name of the project")

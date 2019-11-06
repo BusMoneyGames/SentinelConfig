@@ -138,9 +138,11 @@ def _assemble_config(sentinel_environment_config):
     if "gen_version_control" in run_config.keys():
         commit_id = run_config["gen_version_control"]["commit_id"]
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(commit_id).as_posix()
+        environment_config_data["artifact_name"] = commit_id
     else:
         computer_name = os.getenv('COMPUTERNAME')
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(computer_name).as_posix()
+        environment_config_data["artifact_name"] = computer_name
 
     run_config[config_constants.ENVIRONMENT_CATEGORY] = environment_config_data
 
@@ -247,6 +249,12 @@ def get_default_config_path():
     return path
 
 
+def get_generated_config_location(environment_file):
+    current_run_directory = pathlib.Path(environment_file.parent.joinpath(config_constants.GENERATED_CONFIG_FILE_NAME))
+
+    return current_run_directory
+
+
 def generate_config(environment_file):
     """Generate the assembled config based on the environment file"""
 
@@ -256,7 +264,7 @@ def generate_config(environment_file):
     assembled_config_data = _assemble_config(environment_file)
 
     # Generate output directory
-    current_run_directory = pathlib.Path(environment_file.parent.joinpath(config_constants.GENERATED_CONFIG_FILE_NAME))
+    current_run_directory = get_generated_config_location(environment_file)
 
     # Writing it to disk
     f = open(current_run_directory, "w")

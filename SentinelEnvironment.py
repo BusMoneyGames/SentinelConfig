@@ -1,13 +1,15 @@
 import logging
 import pathlib
-import click
 import json
 import os
+import logging
+
+import click
+
 import configelper
 import config_constants
 
-from SentinelInternalLogger.logger import L
-
+L = logging.getLogger()
 
 def _load_environment_config(overwrite_path=""):
     """Finds the config file that contains the environment information"""

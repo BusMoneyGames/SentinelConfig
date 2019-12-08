@@ -4,6 +4,7 @@ TODO:
 
 Handles generating a config from the environment in a structure like this
 
+```javascript
 {
 	"ue4": {
 			"engine":{},
@@ -34,3 +35,4 @@ Handles generating a config from the environment in a structure like this
 
 	}
 }
+```

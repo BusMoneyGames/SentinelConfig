@@ -36,6 +36,13 @@ def _load_environment_config(overwrite_path=""):
         L.error("Expected Path: %s", config_file_path)
         quit(1)
 
+def refresh_generated_config(config_path, clean_generate=True):
+    sentinel_environment_config = _load_environment_config(config_path)
+
+    if clean_generate == "true":
+        configelper.delete_all_generated_configs(sentinel_environment_config)
+
+    configelper.generate_config(sentinel_environment_config)
 
 @click.group()
 @click.option('--project_root', default="", help="Path to the config overwrite folder")
@@ -62,16 +69,8 @@ def generate(ctx, output, default):
     """Generates a config file """
 
     config_path = ctx.obj['CONFIG_OVERWRITE']
-    skip_version_flag = ctx.obj["SKIP_VERSION"]
+    refresh_generated_config(config_path, default)
 
-    sentinel_environment_config = _load_environment_config(config_path)
-
-    if default == "true":
-        configelper.delete_all_generated_configs(sentinel_environment_config)
-
-    configelper.generate_config(sentinel_environment_config)
-
-    L.debug("Config Refreshed!")
 
 @cli.command()
 @click.argument('values', nargs=-1)
@@ -119,8 +118,6 @@ def make_default_config(ctx, project_name,
 
     if not project_name:
         project_name = ""
-    if not engine_path:
-        engine_path = "UnrealEngine/"
     if not config_path:
         config_path = "SentinelConfig/"
     if not version_control_root:
@@ -135,7 +132,6 @@ def make_default_config(ctx, project_name,
         s3_data_base_location = "Not Set"
 
     config = {"project_root_path": project_name,
-              "engine_root_path": engine_path,
               "sentinel_config_root_path": config_path,
               "version_control_root": version_control_root,
               "sentinel_artifacts_path": artifacts_root,
@@ -146,7 +142,6 @@ def make_default_config(ctx, project_name,
     f = open(default_config_path, "w")
     f.write(json.dumps(config, indent=4))
     f.close()
-
 
 if __name__ == "__main__":
     cli()

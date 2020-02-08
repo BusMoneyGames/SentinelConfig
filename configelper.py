@@ -33,6 +33,10 @@ def get_engine_path_from_windows_registry(engine_id):
             We really could not find the key in both views.
             '''
 
+            print(f"unable to look up pre-installed engine version: {engine_id} from the registry")
+            print(f"https://docs.unrealengine.com/en-US/GettingStarted/Installation/MultipleLauncherInstalls/index.html")
+            quit(1)
+
     value, regtype = winreg.QueryValueEx(key, "InstalledDirectory")
 
     return str(value)

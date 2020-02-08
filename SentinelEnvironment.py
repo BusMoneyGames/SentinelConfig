@@ -141,7 +141,7 @@ def make_default_config(ctx, project_name,
 
     
     if engine_path:
-        config["engine_root"] =  engine_path
+        config["engine_root_path"] =  engine_path
 
     f = open(default_config_path, "w")
     f.write(json.dumps(config, indent=4))

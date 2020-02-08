@@ -139,6 +139,10 @@ def make_default_config(ctx, project_name,
               "sentinel_cache_path": cache_path,
               "s3_data_base_location": s3_data_base_location}
 
+    
+    if engine_path:
+        config["engine_root"] =  engine_path
+
     f = open(default_config_path, "w")
     f.write(json.dumps(config, indent=4))
     f.close()

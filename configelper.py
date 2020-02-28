@@ -143,6 +143,8 @@ def _assemble_config(sentinel_environment_config):
         commit_id = run_config["gen_version_control"]["commit_id"]
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(commit_id).as_posix()
         environment_config_data["artifact_name"] = commit_id
+    elif "artifact_name" in environment_config_data:
+        environment_config_data["sentinel_artifacts_path"] = path.joinpath(environment_config_data["artifact_name"]).as_posix()
     else:
         computer_name = os.getenv('COMPUTERNAME')
         environment_config_data["sentinel_artifacts_path"] = path.joinpath(computer_name).as_posix()

@@ -95,6 +95,7 @@ def get_config_environment_value(ctx, values):
 @click.option('--project_name', default="", help="Name of the project")
 @click.option('--engine_path', default="", help="Relative Path to the engine")
 @click.option('--config_path', default="", help="Path to a custom config folder")
+@click.option('--artifact_name', default="", help="Artifact Name")
 @click.option('--version_control_root', default="", help="Path to the version control root")
 @click.option('--artifacts_root', default="", help="Path to the artifacts root")
 @click.option('--s3_data_base_location', default="", help="Path to the database")
@@ -103,6 +104,7 @@ def get_config_environment_value(ctx, values):
 @click.pass_context
 def make_default_config(ctx, project_name,
                         engine_path,
+                        artifact_name,
                         config_path,
                         version_control_root,
                         artifacts_root,
@@ -142,6 +144,9 @@ def make_default_config(ctx, project_name,
     
     if engine_path:
         config["engine_root_path"] =  engine_path
+
+    if artifact_name:
+        config["artifact_name"] =  artifact_name
 
     f = open(default_config_path, "w")
     f.write(json.dumps(config, indent=4))

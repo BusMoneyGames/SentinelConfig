@@ -1,17 +1,16 @@
 import pathlib
 import config_constants
+import winreg
 import json
 import logging
 import os
+
 L = logging.getLogger()
 
-
 def get_engine_path_from_windows_registry(engine_id):
-
     """ Read engine path from the windows registry"""
 
-    import winreg
-
+    L.info(f"Searching the registry for {engine_id}")
     reg_path = "\\".join([r"SOFTWARE\EpicGames\Unreal Engine", engine_id])
 
     try:
@@ -32,13 +31,16 @@ def get_engine_path_from_windows_registry(engine_id):
             '''
             We really could not find the key in both views.
             '''
-
-            print(f"unable to look up pre-installed engine version: {engine_id} from the registry")
+            error_msg = f"unable to look up pre-installed engine version: {engine_id} from the registry"
+            L.error(error_msg)
+            
+            print(error_msg) 
             print(f"https://docs.unrealengine.com/en-US/GettingStarted/Installation/MultipleLauncherInstalls/index.html")
+            
             quit(1)
 
     value, regtype = winreg.QueryValueEx(key, "InstalledDirectory")
-
+    L.info(f"Engine path found in registr{str(value)}")
     return str(value)
 
 
@@ -263,7 +265,9 @@ def get_generated_config_location(environment_file):
 
 def generate_config(environment_file):
     """Generate the assembled config based on the environment file"""
-
+    print("Got here")
+    L.setLevel(logging.DEBUG)
+    L.info("Message")
     environment_file = pathlib.Path(environment_file)
 
     # Assembles the config into a single file

@@ -81,8 +81,8 @@ def merge_dicts(original, update):
 def get_engine_path_from_project_file(environment_config_data, root_dir):
 
     relative_path = environment_config_data["project_root_path"]
-
     project_root = pathlib.Path(root_dir).joinpath(relative_path).resolve()
+    L.info(f"Project root: {project_root}")
 
     uproject_file = ""
     for each_file in project_root.glob("*.uproject"):
@@ -96,14 +96,20 @@ def get_engine_path_from_project_file(environment_config_data, root_dir):
         f.close()
 
         engine_association = uproject_data["EngineAssociation"]
-
+        L.debug(f"Engine info from project file {engine_association}")
         engine = pathlib.Path(project_root).joinpath(engine_association).resolve()
         # Relative path to the engine
+        
         if engine.exists():
+            L.info(f"Found engine path at {engine.as_posix()}")
             return engine.as_posix()
         else:
+            L.info("Searching for engine in registry")
             engine = get_engine_path_from_windows_registry(engine_association)
             return engine
+    else:
+        print(f"Unable to find project file in {project_root}")
+        quit(1)
 
 
 def _assemble_config(sentinel_environment_config):
@@ -136,6 +142,7 @@ def _assemble_config(sentinel_environment_config):
     environment_config_data = convert_environment_paths_to_abs(environment_config_data, root_dir)
 
     if "engine_root_path" not in environment_config_data:
+        L.info("No engine Path provided in the config.  Attempting to get it from the project")
         environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
 
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
@@ -249,6 +256,7 @@ def _read_configs_from_directory(default_config_path):
 
 def get_default_config_path():
     """Return the directory containing the default config folder"""
+   
     # Test config file
     current_dir = pathlib.Path(pathlib.Path(__file__)).parent
 

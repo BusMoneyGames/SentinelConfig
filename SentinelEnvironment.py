@@ -22,19 +22,18 @@ def _load_environment_config(overwrite_path=""):
     
     # Figure out where the script is run from
     current_run_directory = pathlib.Path(os.getcwd())
-    L.debug("Current Directory: %s ", current_run_directory)
+    L.debug("Running from directory: %s ", current_run_directory)
 
     if overwrite_path:
-        L.debug("environment config read from none default location")
-        L.debug("relative environment path is: %s", overwrite_path)
+        L.info(f"Environment path: {overwrite_path}")
     else:
         overwrite_path = ".."
-        L.debug("Using the default relative path that resolves to:  %s", overwrite_path)
+        L.info("Using default path for config:  %s", overwrite_path)
 
     config_file_name = config_constants.CONFIG_SETTINGS_FILE_NAME
     config_file_path = current_run_directory.joinpath(overwrite_path, config_file_name).resolve()
-    L.debug("Searching for environment file at: %s", config_file_path)
-    L.debug("environment file exists: %s ", config_file_path.exists())
+    
+    L.info(f"environment file {config_file_path} exists: {config_file_path.exists()}")
 
     if config_file_path.exists():
         return config_file_path

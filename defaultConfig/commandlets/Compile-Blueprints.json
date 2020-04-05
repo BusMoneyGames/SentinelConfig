@@ -1,5 +1,6 @@
 {
 	"command": "CompileAllBlueprints",
+	"should_ignore_exit_code": true,
 	"flags": [
 		"projectonly"
 	]

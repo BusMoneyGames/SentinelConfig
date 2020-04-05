@@ -145,6 +145,10 @@ def _assemble_config(sentinel_environment_config):
         L.info("No engine Path provided in the config.  Attempting to get it from the project")
         environment_config_data["engine_root_path"] = get_engine_path_from_project_file(environment_config_data, root_dir)
 
+    else:
+        engine_config = environment_config_data["engine_root_path"]
+        L.info(f"Engine path found: {engine_config}")
+    
     artifacts_path = environment_config_data["sentinel_artifacts_path"]
     path = pathlib.Path(artifacts_path)
 
@@ -171,6 +175,7 @@ def convert_environment_paths_to_abs(environment_config_data, root_dir):
     # Resolves all relative paths in the project structure to absolute paths
     for each_value in environment_config_data.keys():
         each_relative_path = environment_config_data[each_value]
+        L.debug("Creating absolute paths Paths:")
         if each_relative_path.endswith("/") or each_relative_path == "":
             value = root_dir.joinpath(each_relative_path).resolve()
             L.debug(each_value + " :" + str(value) + " Exists:  " + str(value.exists()))

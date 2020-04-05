@@ -278,9 +278,6 @@ def get_generated_config_location(environment_file):
 
 def generate_config(environment_file):
     """Generate the assembled config based on the environment file"""
-    print("Got here")
-    L.setLevel(logging.DEBUG)
-    L.info("Message")
     environment_file = pathlib.Path(environment_file)
 
     # Assembles the config into a single file
